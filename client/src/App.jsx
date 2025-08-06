@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import Dashboard from './pages/Dashboard'; 
+import WorkoutLog from "./pages/WorkoutLog";
 import PrivateRoute from './components/PrivateRoute';
 import './index.css';
 
@@ -15,6 +16,11 @@ function App() {
         <Route path="/dashboard" element={
   <PrivateRoute>
     <Dashboard />
+  </PrivateRoute>
+} />
+<Route path="/workout-log" element={
+  <PrivateRoute>
+    <WorkoutLog />
   </PrivateRoute>
 } />
         <Route path="/" element={<Login />} />

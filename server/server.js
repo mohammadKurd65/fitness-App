@@ -5,6 +5,7 @@ import dotenv from 'dotenv';
 import cors from 'cors';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
+import Workout from './models/Workout.js';
 
 dotenv.config();
 
@@ -106,6 +107,37 @@ jwt.verify(token, JWT_SECRET, (err, user) => {
     next();
 });
 };
+
+// server/server.js
+
+// ایمپورت مدل (بالای فایل)
+
+
+// POST /api/workouts - ذخیره تمرین جدید
+app.post('/api/workouts', authenticate, async (req, res) => {
+try {
+    const { date, exercises, duration, notes } = req.body;
+
+    // اعتبارسنجی
+    if (!exercises || exercises.length === 0) {
+    return res.status(400).json({ message: 'حداقل یک حرکت باید اضافه کنید.' });
+    }
+
+    const workout = new Workout({
+    user: req.user.id,
+    date,
+    exercises,
+    duration,
+    notes,
+    });
+
+    const savedWorkout = await workout.save();
+    res.status(201).json(savedWorkout);
+} catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'خطا در ذخیره تمرین' });
+}
+});
 
 app.get('/api/users/me', authenticate, async (req, res) => {
 try {
