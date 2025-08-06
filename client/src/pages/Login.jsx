@@ -1,6 +1,7 @@
 // src/pages/Login.jsx
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 import axios from 'axios';
 
 const Login = () => {
@@ -8,6 +9,8 @@ const [formData, setFormData] = useState({
     email: '',
     password: '',
 });
+
+const { login } = useAuth();
 
 const [loading, setLoading] = useState(false);
 const [error, setError] = useState('');
@@ -25,6 +28,9 @@ const handleChange = (e) => {
   // ارسال فرم
 const handleSubmit = async (e) => {
     e.preventDefault();
+    login(formData.email, formData.password).then(() => {
+    navigate('/dashboard');
+    });
     setError('');
     setLoading(true);
 
