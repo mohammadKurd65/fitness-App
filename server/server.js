@@ -6,6 +6,7 @@ import cors from 'cors';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import Workout from './models/Workout.js';
+import Exercise from './models/Exercise.js';
 
 dotenv.config();
 
@@ -108,10 +109,6 @@ jwt.verify(token, JWT_SECRET, (err, user) => {
 });
 };
 
-// server/server.js
-
-// ایمپورت مدل (بالای فایل)
-
 
 // POST /api/workouts - ذخیره تمرین جدید
 app.post('/api/workouts', authenticate, async (req, res) => {
@@ -139,6 +136,34 @@ try {
 }
 });
 
+// POST /api/exercises/custom - ایجاد حرکت سفارشی
+app.post('/api/exercises/custom', authenticate, async (req, res) => {
+try {
+    const { name, muscle, equipment, instructions, image } = req.body;
+
+    // اعتبارسنجی
+    if (!name || !muscle) {
+    return res.status(400).json({ message: 'نام و عضله الزامی است.' });
+    }
+
+    const exercise = new Exercise({
+    name,
+    muscle,
+    equipment: equipment || 'بدون وزنه',
+    instructions: instructions || '',
+    image: image || 'https://via.placeholder.com/400x200?text=Exercise',
+    isCustom: true,
+    user: req.user.id
+    });
+
+    const savedExercise = await exercise.save();
+    res.status(201).json(savedExercise);
+} catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'خطا در ایجاد حرکت' });
+}
+});
+
 app.get('/api/users/me', authenticate, async (req, res) => {
 try {
     const user = await User.findById(req.user.id).select('-password');
@@ -154,6 +179,93 @@ try {
 // Test route
 app.get('/api/test', (req, res) => {
 res.json({ message: 'سرور با موفقیت کار می‌کند!' });
+});
+
+// GET /api/workouts - دریافت تمرینات کاربر
+app.get('/api/workouts', authenticate, async (req, res) => {
+try {
+    const workouts = await Workout
+    .find({ user: req.user.id })
+    .sort({ date: -1 })
+    .limit(5)
+    .select('date exercises duration')
+      .populate('exercises.exercise', 'name') // اگر مدل Exercise داشته باشیم
+    .exec();
+
+    res.json(workouts);
+} catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'خطا در دریافت تمرینات' });
+}
+});
+
+
+// GET /api/exercises - دریافت همه حرکات (استاندارد + سفارشی کاربر)
+app.get('/api/exercises', authenticate, async (req, res) => {
+try {
+    // فقط حرکات سفارشی کاربر جاری
+    const customExercises = await Exercise.find({
+    user: req.user.id,
+    isCustom: true
+    }).sort({ createdAt: -1 });
+
+    // حرکات استاندارد (isCustom: false)
+    const standardExercises = [
+    {
+        _id: 'standard-1',
+        name: 'اسکوات',
+        muscle: 'پا',
+        equipment: 'هالتر',
+        instructions: 'پای خود را به عرض شانه باز کنید و به آرامی خم شوید تا ران‌ها موازی زمین شوند.',
+        image: 'https://example.com/squat.jpg',
+        isCustom: false
+    },
+    {
+        _id: 'standard-2',
+        name: 'دمبل پرس',
+        muscle: 'سینه',
+        equipment: 'دمبل',
+        instructions: 'روی نیمکت دراز بکشید و دمبل‌ها را به سمت بالا هل دهید.',
+        image: 'https://example.com/dumbbell-press.jpg',
+        isCustom: false
+    },
+    {
+        _id: 'standard-3',
+        name: 'کشش دمبل',
+        muscle: 'پشت',
+        equipment: 'دمبل',
+        instructions: 'با خم شدن به جلو، دمبل را به سمت کمر بکشید.',
+        image: 'https://example.com/dumbbell-row.jpg',
+        isCustom: false
+    },
+    {
+        _id: 'standard-4',
+        name: 'پول‌آپ',
+        muscle: 'پشت',
+        equipment: 'بدون وزنه',
+        instructions: 'با گرفتن میله، بدن خود را به سمت بالا بکشید.',
+        image: 'https://example.com/pullup.jpg',
+        isCustom: false
+    },
+    {
+        _id: 'standard-5',
+        name: 'پرس شانه',
+        muscle: 'شانه',
+        equipment: 'دمبل',
+        instructions: 'دمبل‌ها را از دو طرف سر به بالا هل دهید.',
+        image: 'https://example.com/shoulder-press.jpg',
+        isCustom: false
+    }
+    ];
+
+    // ادغام حرکات استاندارد و سفارشی
+    const exercises = [...standardExercises, ...customExercises];
+
+    res.json(exercises);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'خطا در دریافت حرکات' });
+  }
 });
 
 // Catch-all
