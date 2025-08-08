@@ -55,15 +55,18 @@ return (
         </div>
 
         {/* دکمه ثبت تمرین */}
-        <div className="mb-10 text-center">
+        <div className="flex items-center justify-between mb-10 text-center">
         <Link
             to="/workout-log"
-            className="inline-block px-8 py-4 font-semibold text-white transition bg-blue-600 shadow hover:bg-blue-700 rounded-xl"
+            className="inline-block px-8 py-4 font-semibold transition bg-blue-600 shadow text-wh ite hover:bg-blue-700 rounded-xl"
         >
             🏋️‍♂️ ثبت تمرین جدید
         </Link>
         <Link to="/exercises" className="text-green-600 hover:underline">
 کتابخانه حرکات
+</Link>
+<Link to="/progress" className="font-medium text-purple-600 hover:underline">
+📈 پیشرفت من
 </Link>
         </div>
 

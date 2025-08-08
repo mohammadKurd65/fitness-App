@@ -9,6 +9,7 @@ import CreateCustomExercise from './pages/CreateCustomExercise';
 import PrivateRoute from './components/PrivateRoute';
 import ExerciseDetail from './pages/ExerciseDetail';
 import EditCustomExercise from './pages/EditCustomExercise';
+import Progress from './pages/Progress';
 
 import './index.css'; // ✅ این خط باید کاملاً جدا باشه
 
@@ -48,6 +49,12 @@ function App() {
 <Route path="/exercises/:id/edit" element={
   <PrivateRoute>
     <EditCustomExercise />
+  </PrivateRoute>
+} />
+
+<Route path="/progress" element={
+  <PrivateRoute>
+    <Progress />
   </PrivateRoute>
 } />
 

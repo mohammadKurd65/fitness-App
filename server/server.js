@@ -15,7 +15,7 @@ const PORT = process.env.PORT || 5000;
 
 // Middleware
 app.use(cors({
-origin: 'http://localhost:3000',
+origin: 'http://localhost:5173',
 credentials: true,
 }));
 app.use(express.json());
@@ -355,6 +355,29 @@ res.status(404).json({ message: 'مسیر یافت نشد.' });
 app.use((err, req, res, next) => {
 console.error(err.stack);
 res.status(500).json({ message: 'یک خطا رخ داده است.' });
+});
+
+// DELETE /api/exercises/custom/:id - حذف حرکت سفارشی
+app.delete('/api/exercises/custom/:id', authenticate, async (req, res) => {
+try {
+    const { id } = req.params;
+
+    // چک کردن وجود حرکت و متعلق بودن به کاربر
+    const exercise = await Exercise.findOneAndDelete({
+    _id: id,
+    user: req.user.id,
+    isCustom: true
+    });
+
+    if (!exercise) {
+    return res.status(404).json({ message: 'حرکت یافت نشد یا دسترسی ندارید.' });
+    }
+
+    res.json({ message: 'حرکت با موفقیت حذف شد.' });
+} catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'خطا در حذف حرکت' });
+}
 });
 
 // Start server

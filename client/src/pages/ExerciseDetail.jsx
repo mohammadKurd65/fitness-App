@@ -1,13 +1,13 @@
 
 import React, { useState, useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 
 const ExerciseDetail = () => {
   const { id } = useParams();
   const [exercise, setExercise] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-
+const navigate = useNavigate();
   useEffect(() => {
     const fetchExercise = async () => {
       try {
@@ -55,27 +55,60 @@ const ExerciseDetail = () => {
     );
   }
 
+const handleDelete = async () => {
+  if (!window.confirm('آیا از حذف این حرکت سفارشی اطمینان دارید؟ این عمل قابل بازگشت نیست.')) {
+    return;
+  }
+
+  try {
+    const res = await fetch(`http://localhost:5000/api/exercises/custom/${exercise._id}`, {
+      method: 'DELETE',
+      headers: {
+        'Authorization': `Bearer ${localStorage.getItem('token')}`
+      }
+    });
+
+    if (res.ok) {
+      alert('حرکت با موفقیت حذف شد.');
+      navigate('/exercises'); // بازگشت به کتابخانه
+    } else {
+      const data = await res.json();
+      alert(data.message || 'حذف انجام نشد.');
+    }
+  } catch (err) {
+    alert('اتصال به سرور برقرار نیست.');
+  }
+};
+  
   return (
     <div className="min-h-screen px-4 py-8 bg-gray-50">
       <div className="max-w-3xl mx-auto">
-        {/* دکمه بازگشت */}
-        <Link
-          to="/exercises"
-          className="inline-block mb-6 text-sm text-blue-600 hover:underline"
-        >
-          ← بازگشت به کتابخانه
-        </Link>
-
-        {exercise.isCustom && (
+<div className="flex items-center mb-6">
   <Link
-    to={`/exercises/${exercise._id}/edit`}
-    className="inline-block px-4 py-2 mb-6 mr-4 text-sm text-white bg-yellow-500 rounded-lg hover:bg-yellow-600"
+    to="/exercises"
+    className="text-sm text-blue-600 hover:underline"
   >
-    ✏️ ویرایش
+    ← بازگشت به کتابخانه
   </Link>
-)}
 
-        {/* کارت اصلی */}
+  {exercise.isCustom && (
+    <>
+      <Link
+        to={`/exercises/${exercise._id}/edit`}
+        className="px-4 py-2 mr-4 text-sm text-white bg-yellow-500 rounded-lg hover:bg-yellow-600"
+      >
+        ✏️ ویرایش
+      </Link>
+      <button
+        onClick={handleDelete}
+        className="px-4 py-2 text-sm text-white bg-red-500 rounded-lg hover:bg-red-600"
+      >
+        🗑️ حذف
+      </button>
+    </>
+  )}
+</div> 
+   {/* کارت اصلی */}
         <div className="overflow-hidden bg-white shadow-lg rounded-xl">
           {/* تصویر */}
           <div className="w-full h-64 overflow-hidden sm:h-80">
