@@ -2,8 +2,12 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { useLocation } from 'react-router-dom';
 
 const WorkoutLog = () => {
+const location = useLocation();
+const { state } = location;
+const prefillData = state?.fromCalendar ? state : null;
 const { user } = useAuth();
 const navigate = useNavigate();
 
@@ -21,6 +25,13 @@ const [workout, setWorkout] = useState({
 
   // بارگذاری حرکات از API
 useEffect(() => {
+if (prefillData) {
+    setWorkout({
+    ...workout,
+    date: prefillData.date,
+    exercises: prefillData.exercises
+    });
+}
     const fetchExercises = async () => {
     try {
         const res = await fetch('http://localhost:5000/api/exercises', {
@@ -43,7 +54,7 @@ useEffect(() => {
     };
 
     fetchExercises();
-}, [ setLoading, setError, navigate, user]);
+}, [ setLoading, setError, navigate, user, workout, prefillData]);
 
   // اضافه کردن حرکت به جلسه
 const addExerciseToWorkout = (exercise) => {

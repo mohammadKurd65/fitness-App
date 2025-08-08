@@ -50,8 +50,8 @@ return (
 
         {/* Header */}
         <div className="mb-8 text-center">
-        <h1 className="text-3xl font-bold text-gray-800">خوش آمدی، {user?.name}!</h1>
-        <p className="text-gray-600">آخرین فعالیت‌های تمرینی</p>
+        <h1 className="text-xl font-bold text-gray-800">خوش آمدی، {user?.name}!</h1>
+        <p className="mb-8 text-gray-600">آخرین فعالیت‌های تمرینی</p>
         </div>
 
         {/* دکمه ثبت تمرین */}
@@ -67,6 +67,12 @@ return (
 </Link>
 <Link to="/progress" className="font-medium text-purple-600 hover:underline">
 📈 پیشرفت من
+</Link>
+<Link to="/plans" className="text-purple-600 hover:underline">
+📅 برنامه‌های تمرینی
+</Link>
+<Link to="/calendar" className="text-blue-600 hover:underline">
+📅 تقویم تمرینی
 </Link>
         </div>
 

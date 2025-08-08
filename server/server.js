@@ -7,6 +7,7 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import Workout from './models/Workout.js';
 import Exercise from './models/Exercise.js';
+import WorkoutPlan from './models/WorkoutPlan.js';
 
 dotenv.config();
 
@@ -164,6 +165,29 @@ try {
 }
 });
 
+// POST /api/plans - ایجاد برنامه جدید
+app.post('/api/plans', authenticate, async (req, res) => {
+try {
+    const { name, days } = req.body;
+
+    if (!name || !days || days.length === 0) {
+    return res.status(400).json({ message: 'نام و روزها الزامی است.' });
+    }
+
+    const plan = new WorkoutPlan({
+    name,
+    user: req.user.id,
+    days
+    });
+
+    const savedPlan = await plan.save();
+    res.status(201).json(savedPlan);
+} catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'خطا در ایجاد برنامه' });
+}
+});
+
 // PUT /api/exercises/custom/:id - ویرایش حرکت سفارشی
 app.put('/api/exercises/custom/:id', authenticate, async (req, res) => {
 try {
@@ -193,6 +217,25 @@ try {
 } catch (err) {
     console.error(err);
     res.status(500).json({ message: 'خطا در ویرایش حرکت' });
+}
+});
+
+// PUT /api/plans/:id - ویرایش برنامه
+app.put('/api/plans/:id', authenticate, async (req, res) => {try {
+    const { name, days } = req.body;
+    const plan = await WorkoutPlan.findOneAndUpdate(
+    { _id: req.params.id, user: req.user.id },
+    { name, days, updatedAt: Date.now() },
+    { new: true }
+    );
+
+    if (!plan) {
+    return res.status(404).json({ message: 'برنامه یافت نشد یا دسترسی ندارید.' });
+    }
+
+    res.json(plan);
+} catch (err) {
+    res.status(500).json({ message: 'خطا در ویرایش برنامه' });
 }
 });
 
@@ -346,6 +389,85 @@ try {
 }
 });
 
+// GET /api/plans - دریافت تمام برنامه‌های کاربر
+app.get('/api/plans', authenticate, async (req, res) => {
+try {
+    const plans = await WorkoutPlan.find({ user: req.user.id }).sort({ createdAt: -1 });
+    res.json(plans);
+} catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'خطا در دریافت برنامه‌ها' });
+}
+});
+
+// GET /api/plans/:id - دریافت یک برنامه
+app.get('/api/plans/:id', authenticate, async (req, res) => {
+try {
+    const plan = await WorkoutPlan.findOne({
+    _id: req.params.id,
+    user: req.user.id
+    });
+
+    if (!plan) {
+    return res.status(404).json({ message: 'برنامه یافت نشد.' });
+    }
+
+    res.json(plan);
+} catch (err) {
+    res.status(500).json({ message: 'خطا در دریافت برنامه' });
+}
+});
+
+// GET /api/schedule/today - دریافت برنامه امروز
+app.get('/api/schedule/today', authenticate, async (req, res) => {
+try {
+    const today = new Date().toLocaleDateString('fa-IR', { weekday: 'long' }); // مثلاً "دوشنبه"
+
+    const plan = await WorkoutPlan.findOne({
+    user: req.user.id,
+    'days.day': today
+    });
+
+    if (!plan) {
+    return res.json({ hasPlan: false });
+    }
+
+    const dayPlan = plan.days.find(d => d.day === today);
+    res.json({
+    hasPlan: true,
+    planName: plan.name,
+    exercises: dayPlan.exercises
+    });
+} catch (err) {
+    res.status(500).json({ message: 'خطا در دریافت برنامه' });
+}
+});
+
+// GET /api/schedule/week - دریافت کل هفته
+app.get('/api/schedule/week', authenticate, async (req, res) => {
+try {
+    const plans = await WorkoutPlan.find({ user: req.user.id });
+    const week = {};
+
+    plans.forEach(plan => {
+    plan.days.forEach(day => {
+        if (!week[day.day]) {
+        week[day.day] = [];
+        }
+        week[day.day].push({
+        planId: plan._id,
+        planName: plan.name,
+        exercises: day.exercises
+        });
+    });
+    });
+
+    res.json(week);
+} catch (err) {
+    res.status(500).json({ message: 'خطا در دریافت برنامه‌های هفتگی' });
+}
+});
+
 // Catch-all
 app.all('*', (req, res) => {
 res.status(404).json({ message: 'مسیر یافت نشد.' });
@@ -377,6 +499,24 @@ try {
 } catch (err) {
     console.error(err);
     res.status(500).json({ message: 'خطا در حذف حرکت' });
+}
+});
+
+// DELETE /api/plans/:id - حذف برنامه
+app.delete('/api/plans/:id', authenticate, async (req, res) => {
+try {
+    const plan = await WorkoutPlan.findOneAndDelete({
+    _id: req.params.id,
+    user: req.user.id
+    });
+
+    if (!plan) {
+    return res.status(404).json({ message: 'برنامه یافت نشد یا دسترسی ندارید.' });
+    }
+
+    res.json({ message: 'برنامه با موفقیت حذف شد.' });
+} catch (err) {
+    res.status(500).json({ message: 'خطا در حذف برنامه' });
 }
 });
 
