@@ -1,7 +1,8 @@
 // src/pages/ExerciseLibrary.jsx
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
-
+import Exercise from '../../../server/models/Exercise';
+import { Link } from 'react-router-dom';
 const MUSCLES = ['همه', 'سینه', 'پشت', 'پا', 'شانه', 'بازو', 'هسته'];
 
 const ExerciseLibrary = () => {
@@ -113,6 +114,23 @@ return (
                 <p className="text-sm text-gray-600">وسیله: {ex.equipment}</p>
                 <p className="mt-2 text-sm text-gray-500 line-clamp-2">{ex.instructions}</p>
                 </div>
+
+<Link to={`/exercises/${ex._id}`} key={index} className="block">
+<div className="transition bg-white shadow rounded-xl hover:shadow-lg">
+    <img src={ex.image} alt={ex.name} className="object-cover w-full h-40" />
+    <div className="p-4">
+    <div className="flex items-start justify-between">
+        <h3 className="font-semibold text-gray-800">{ex.name}</h3>
+        {ex.isCustom && (
+        <span className="px-2 py-1 text-xs text-purple-700 bg-purple-100 rounded">سفارشی</span>
+        )}
+    </div>
+    <p className="mt-1 text-sm text-gray-600">عضله: <span className="font-medium">{ex.muscle}</span></p>
+    <p className="text-sm text-gray-600">وسیله: {ex.equipment}</p>
+    </div>
+</div>
+</Link>
+                
             </div>
             ))}
         </div>
@@ -127,6 +145,9 @@ return (
     + افزودن حرکت سفارشی
 </Link>
 </div>
+
+
+
     </div>
     </div>
 );

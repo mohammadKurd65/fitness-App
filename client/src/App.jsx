@@ -7,6 +7,8 @@ import WorkoutLog from './pages/WorkoutLog';
 import ExerciseLibrary from './pages/ExerciseLibrary';
 import CreateCustomExercise from './pages/CreateCustomExercise';
 import PrivateRoute from './components/PrivateRoute';
+import ExerciseDetail from './pages/ExerciseDetail';
+import EditCustomExercise from './pages/EditCustomExercise';
 
 import './index.css'; // ✅ این خط باید کاملاً جدا باشه
 
@@ -36,6 +38,19 @@ function App() {
             <CreateCustomExercise />
           </PrivateRoute>
         } />
+
+<Route path="/exercises/:id" element={
+  <PrivateRoute>
+    <ExerciseDetail />
+  </PrivateRoute>
+} />
+
+<Route path="/exercises/:id/edit" element={
+  <PrivateRoute>
+    <EditCustomExercise />
+  </PrivateRoute>
+} />
+
         <Route path="/" element={<Login />} />
       </Routes>
     </Router>

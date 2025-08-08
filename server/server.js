@@ -164,6 +164,38 @@ try {
 }
 });
 
+// PUT /api/exercises/custom/:id - ویرایش حرکت سفارشی
+app.put('/api/exercises/custom/:id', authenticate, async (req, res) => {
+try {
+    const { id } = req.params;
+    const { name, muscle, equipment, instructions, image } = req.body;
+
+    // چک کردن وجود حرکت و متعلق بودن به کاربر
+    const exercise = await Exercise.findOne({
+    _id: id,
+    user: req.user.id,
+    isCustom: true
+    });
+
+    if (!exercise) {
+    return res.status(404).json({ message: 'حرکت یافت نشد یا دسترسی ندارید.' });
+    }
+
+    // آپدیت فیلدها
+    exercise.name = name || exercise.name;
+    exercise.muscle = muscle || exercise.muscle;
+    exercise.equipment = equipment || exercise.equipment;
+    exercise.instructions = instructions || exercise.instructions;
+    exercise.image = image || exercise.image;
+
+    const updatedExercise = await exercise.save();
+    res.json(updatedExercise);
+} catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'خطا در ویرایش حرکت' });
+}
+});
+
 app.get('/api/users/me', authenticate, async (req, res) => {
 try {
     const user = await User.findById(req.user.id).select('-password');
@@ -266,6 +298,52 @@ try {
     console.error(err);
     res.status(500).json({ message: 'خطا در دریافت حرکات' });
   }
+});
+
+// GET /api/exercises/:id - دریافت یک حرکت خاص
+app.get('/api/exercises/:id', authenticate, async (req, res) => {
+try {
+    const { id } = req.params;
+
+    // اگر id استاندارد باشد (مثل 'standard-1')
+    if (id.startsWith('standard-')) {
+    const standardExercises = [
+        {
+        _id: 'standard-1',
+        name: 'اسکوات',
+        muscle: 'پا',
+        equipment: 'هالتر',
+        instructions: 'پای خود را به عرض شانه باز کنید و به آرامی خم شوید تا ران‌ها موازی زمین شوند. سرعت پایین، کنترل بالا.',
+        image: 'https://example.com/squat.jpg',
+        isCustom: false
+        },
+        // ... سایر حرکات استاندارد
+    ];
+
+    const exercise = standardExercises.find(ex => ex._id === id);
+    if (!exercise) {
+        return res.status(404).json({ message: 'حرکت یافت نشد.' });
+    }
+
+    return res.json(exercise);
+    }
+
+    // اگر حرکت سفارشی باشد
+    const customExercise = await Exercise.findOne({
+    _id: id,
+    user: req.user.id,
+    isCustom: true
+    });
+
+    if (!customExercise) {
+    return res.status(404).json({ message: 'حرکت یافت نشد یا دسترسی ندارید.' });
+    }
+
+    res.json(customExercise);
+} catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'خطا در دریافت حرکت' });
+}
 });
 
 // Catch-all
