@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useLocation } from 'react-router-dom';
+import { addToOfflineQueue } from '../components/OfflineSyncManager';
 
 const WorkoutLog = () => {
 const location = useLocation();
@@ -102,34 +103,38 @@ const updateSet = (exerciseIndex, setIndex, field, value) => {
 
   // ارسال فرم
 const handleSubmit = async (e) => {
-    e.preventDefault();
-    setError('');
+e.preventDefault();
+setError('');
+setLoading(true);
 
-    if (!workout.duration || workout.exercises.length === 0) {
-    setError('حداقل مدت زمان و یک حرکت باید وارد شود.');
-    return;
-    }
-
-    try {
+try {
     const res = await fetch('http://localhost:5000/api/workouts', {
-        method: 'POST',
-        headers: {
+    method: 'POST',
+    headers: {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${localStorage.getItem('token')}`
-        },
-        body: JSON.stringify(workout)
+    },
+    body: JSON.stringify(workout)
     });
 
     if (res.ok) {
-        alert('تمرین با موفقیت ذخیره شد!');
-        navigate('/dashboard');
+    alert('تمرین با موفقیت ذخیره شد!');
+    navigate('/dashboard');
     } else {
-        const data = await res.json();
-        setError(data.message || 'خطا در ذخیره');
+    throw new Error('ارسال ناموفق');
     }
-    } catch (err) {
-    setError('اتصال به سرور برقرار نیست.');
+} catch (err) {
+    // اگر ارسال به سرور شکست خورد، در IndexedDB ذخیره کن
+    try {
+    await addToOfflineQueue(workout);
+    alert('تمرین در حالت آفلاین ذخیره شد و بعداً همگام‌سازی می‌شود.');
+    navigate('/dashboard');
+    } catch (dbErr) {
+    setError('خطا در ذخیره آفلاین. لطفاً دوباره تلاش کنید.');
     }
+} finally {
+    setLoading(false);
+}
 };
 
 return (

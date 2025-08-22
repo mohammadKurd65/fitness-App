@@ -42,7 +42,19 @@ useEffect(() => {
     fetchWorkouts();
 }, [ navigate, user, setRecentWorkouts, setLoading]);
 
-
+// در App یا Dashboard
+useEffect(() => {
+const today = new Date().toLocaleDateString('fa-IR', { weekday: 'long' });
+if (today === 'دوشنبه') {
+    setTimeout(() => {
+    if (Notification.permission === 'granted') {
+        new Notification('وقت تمرین است!', {
+        body: 'امروز زمان تمرین پا هست. بیا یه جلسه ثبت کنیم؟',
+        });
+    }
+    }, 10000); // 10 ثانیه بعد از باز کردن صفحه
+}
+}, [ ]);
 return (
     
     <div className="min-h-screen px-4 py-8 bg-gray-100">
@@ -129,7 +141,21 @@ return (
             </Link>
         </div>
         </div>
-
+<button
+onClick={() => {
+    if (Notification.permission === 'granted') {
+    new Notification('سلام!', {
+        body: 'این یک اعلان تستی است.',
+        icon: '/icon-192x192.png'
+    });
+    } else {
+    alert('ابتدا مجوز اعلان را بدهید.');
+    }
+}}
+className="mt-8 text-sm text-blue-600 hover:underline"
+>
+تست اعلان
+</button>
     </div>
     </div>
 );

@@ -12,12 +12,20 @@ import EditCustomExercise from './pages/EditCustomExercise';
 import Progress from './pages/Progress';
 import WorkoutPlans from './pages/WorkoutPlans';
 import Calendar from './pages/Calendar';
+import NotificationManager from './components/NotificationManager';
+import InstallPrompt from './components/InstallPrompt';
+import OfflineSyncManager from './components/OfflineSyncManager';
 
 import './index.css'; // ✅ این خط باید کاملاً جدا باشه
 
 function App() {
   return (
-    <Router>
+    <>
+    <OfflineSyncManager />
+    <InstallPrompt />
+      <NotificationManager />
+      {/* بقیه روت‌ها */}
+      <Router>
       <Routes>
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
@@ -75,6 +83,8 @@ function App() {
         <Route path="/" element={<Login />} />
       </Routes>
     </Router>
+    </>
+    
   );
 }
 
