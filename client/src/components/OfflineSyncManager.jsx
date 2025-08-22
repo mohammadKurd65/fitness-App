@@ -50,7 +50,7 @@ console.log('🗑️ تمرین حذف شد:', id);
 };
 
 // همگام‌سازی خودکار با سرور
-const syncOfflineWorkouts = async (token) => {
+export const syncOfflineWorkouts = async (token) => {
 const pendingWorkouts = await getOfflineWorkouts();
 for (const workout of pendingWorkouts) {
     try {

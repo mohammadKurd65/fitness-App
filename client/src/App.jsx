@@ -15,6 +15,7 @@ import Calendar from './pages/Calendar';
 import NotificationManager from './components/NotificationManager';
 import InstallPrompt from './components/InstallPrompt';
 import OfflineSyncManager from './components/OfflineSyncManager';
+import OfflineWorkouts from './pages/OfflineWorkouts'; 
 
 import './index.css'; // ✅ این خط باید کاملاً جدا باشه
 
@@ -77,6 +78,12 @@ function App() {
 <Route path="/calendar" element={
   <PrivateRoute>
     <Calendar />
+  </PrivateRoute>
+} />
+
+<Route path="/offline-workouts" element={
+  <PrivateRoute>
+    <OfflineWorkouts />
   </PrivateRoute>
 } />
 

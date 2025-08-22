@@ -86,6 +86,11 @@ return (
 <Link to="/calendar" className="text-blue-600 hover:underline">
 📅 تقویم تمرینی
 </Link>
+
+<Link to="/offline-workouts" className="font-medium text-yellow-600 hover:underline">
+📱 تمرین‌های آفلاین
+</Link>
+
         </div>
 
         {/* لیست تمرینات اخیر */}
