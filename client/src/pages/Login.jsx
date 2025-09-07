@@ -35,7 +35,7 @@ const handleSubmit = async (e) => {
     setLoading(true);
 
     try {
-    const res = await axios.post('http://localhost:5000/api/auth/login', formData);
+    const res = await axios.post("http://localhost:5000/api/users/login", formData);
 
       // ذخیره توکن و اطلاعات کاربر
     localStorage.setItem('token', res.data.token);

@@ -16,6 +16,8 @@ import NotificationManager from './components/NotificationManager';
 import InstallPrompt from './components/InstallPrompt';
 import OfflineSyncManager from './components/OfflineSyncManager';
 import OfflineWorkouts from './pages/OfflineWorkouts'; 
+import Settings from './pages/Settings';
+import AnalyticsDashboard from './pages/AnalyticsDashboard';
 
 import './index.css'; // ✅ این خط باید کاملاً جدا باشه
 
@@ -84,6 +86,18 @@ function App() {
 <Route path="/offline-workouts" element={
   <PrivateRoute>
     <OfflineWorkouts />
+  </PrivateRoute>
+} />
+
+<Route path="/settings" element={
+  <PrivateRoute>
+    <Settings />
+  </PrivateRoute>
+} />
+
+<Route path="/analytics" element={
+  <PrivateRoute>
+    <AnalyticsDashboard />
   </PrivateRoute>
 } />
 

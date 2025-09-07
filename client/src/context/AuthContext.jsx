@@ -83,7 +83,9 @@ useEffect(() => {
 
         try {
           // درخواست به /api/users/me برای دریافت اطلاعات کاربر
-        const res = await axios.get('http://localhost:5000/api/users/me');
+        const res = await axios.get("http://localhost:5000/api/auth/profile", {
+  headers: { Authorization: `Bearer ${token}` }
+});
         dispatch({
             type: 'LOAD_USER',
             payload: { user: res.data },
@@ -103,7 +105,7 @@ useEffect(() => {
   // Login
 const login = async (email, password) => {
     try {
-    const res = await axios.post('http://localhost:5000/api/auth/login', { email, password });
+    const res = await axios.post("http://localhost:5000/api/auth/login", { email, password });
 
     const { token, user } = res.data;
 
@@ -127,7 +129,7 @@ const login = async (email, password) => {
   // Register
 const register = async (name, email, password) => {
     try {
-    const res = await axios.post('http://localhost:5000/api/auth/register', { name, email, password });
+    const res = await axios.post("http://localhost:5000/api/auth/login", { name, email, password });
 
     const { token, user } = res.data;
 
